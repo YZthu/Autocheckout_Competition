@@ -9,8 +9,6 @@ Weight_sensor_number = 360
 
 item_weight_list =[] #this list provide the weight value and standard deviation of each item 
 
-detected_weight_event_queue = [queue.Queue(0) for kk in range(Weight_sensor_number)] #event sotor queue of each sensor
-total_detected_queue = queue.Queue(0) # number changed_weight timestamp #total queue of detected event
 
 class WeightSensor:
     weight_change_value = [[] for i in range(Weight_sensor_number) ]
@@ -24,7 +22,7 @@ class WeightSensor:
         # weight sensor sampling rate is 60 Hz, keep all the weight value in the last 20 seconds
 
         
-    def weight_change_detection(self):
+    def weight_change_detection(self, total_detected_queue, detected_weight_event_queue):
 
         pre_val = self.value[0]
         CONTINUE_TH = 5
@@ -42,7 +40,7 @@ class WeightSensor:
         for kk in np.arange(1, len(self.value)):
 
             now_val = self.value[kk]
-            if np.abs(now_val - pre_val) < 3:
+            if np.abs(now_val - pre_val) < 15:
                 continue_count = continue_count+1
                 change_flag = 0
             else:
@@ -87,7 +85,7 @@ class WeightSensor:
                 #print(later_weight)
                 #print(pre_weight)
                 changed_weight = later_weight - pre_weight
-                if (np.abs(changed_weight) < 5):
+                if (np.abs(changed_weight) < 15):
                     continue
                 ts_loc = int(np.round((con_start_loc+con_stop_loc)/2))
                 time_stamp = self.timestamp[ts_loc]
@@ -130,17 +128,20 @@ class WeightSensor:
         #print(ts_loc)
     
     
-    def value_update(self, val, timestamp):
+    def value_update(self, total_detected_queue, detected_weight_event_queue, val, timestamp):
         self.value = np.concatenate((self.value,val),axis = 0)
         self.timestamp = np.concatenate((self.timestamp, timestamp), axis=0)
-        if len(self.value) > 60*20: #store 20 seconds data
-            del_num = len(self.value) - 60*20
+        if len(self.value) > 6*20: #store 20 seconds data
+            del_num = len(self.value) - 6*20
             del_array = np.arange(del_num)
             self.value = np.delete(self.value, del_array, axis = 0)
             self.timestamp = np.delete(self.timestamp, del_array, axis = 0)
-        self.weight_change_detection()
+        self.weight_change_detection(total_detected_queue, detected_weight_event_queue)
             
 if __name__ == "__main__":
+
+    detected_weight_event_queue = [queue.Queue(0) for kk in range(Weight_sensor_number)]  # event sotor queue of each sensor
+    total_detected_queue = queue.Queue(0)  # number changed_weight timestamp #total queue of detected event
 
     weight_value_list =[ [] for jj in range(Weight_sensor_number)]
     timestamp_list = [ [] for jj in range(Weight_sensor_number)]
@@ -178,7 +179,7 @@ if __name__ == "__main__":
 
                 update_wv = np.array(weight_value_list[sensor_num][time_coun:time_coun+10])
                 update_ts = np.array(timestamp_list[sensor_num][time_coun: time_coun+10])
-                weight_sensor_list[sensor_num].value_update(update_wv, update_ts)
+                weight_sensor_list[sensor_num].value_update(total_detected_queue, detected_weight_event_queue, update_wv, update_ts)
 
         time.sleep(0.1)
 
