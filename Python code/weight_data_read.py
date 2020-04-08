@@ -17,10 +17,10 @@ def csv_file_read(gn, sn, pn):
     down_ts = []
     down_wv = []
 
-    for jj in np.arange(0, len(weight_value)-10, 10):
+    for jj in np.arange(0, len(weight_value)-3, 3):
         #print(jj)
-        tmp_ts = timestamp[jj: jj + 10]
-        tmp_wv = weight_value[jj: jj + 10]
+        tmp_ts = timestamp[jj: jj + 3]
+        tmp_wv = weight_value[jj: jj + 3]
         #print(tmp_wv)
 
         mean_ts = np.mean(tmp_ts)

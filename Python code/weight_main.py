@@ -131,8 +131,8 @@ class WeightSensor:
     def value_update(self, total_detected_queue, detected_weight_event_queue, val, timestamp):
         self.value = np.concatenate((self.value,val),axis = 0)
         self.timestamp = np.concatenate((self.timestamp, timestamp), axis=0)
-        if len(self.value) > 6*20: #store 20 seconds data
-            del_num = len(self.value) - 6*20
+        if len(self.value) > 20*20: #store 20 seconds data
+            del_num = len(self.value) - 20*20
             del_array = np.arange(del_num)
             self.value = np.delete(self.value, del_array, axis = 0)
             self.timestamp = np.delete(self.timestamp, del_array, axis = 0)
