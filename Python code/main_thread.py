@@ -11,6 +11,7 @@ if __name__ == "__main__":
     detected_weight_event_queue = [queue.Queue(0) for kk in
                                    range(Weight_sensor_number)]  # event sotor queue of each sensor
     total_detected_queue = queue.Queue(0)  # number changed_weight timestamp #total queue of detected event
+    merged_detected_queue = queue.Queue(0)
 
     weight_value_list = [[] for jj in range(Weight_sensor_number)]
     timestamp_list = [[] for jj in range(Weight_sensor_number)]
@@ -38,7 +39,9 @@ if __name__ == "__main__":
 
                 count = count + 1
                 weight_sensor_list.append(WeightSensor(sensor_number, item_dict, initial_val, initial_ts))
-
+    
+    pre_timestamp = 0
+    buffer_info = []
     for time_coun in np.arange(50, len(weight_value) - 10, 10):
         for sensor_num in range(Weight_sensor_number):
 
@@ -52,6 +55,19 @@ if __name__ == "__main__":
 
         tmp_st = WeightSensor.weight_change_value[124]  # sensor 2 5 5
         # print(WeightSensor.weight_change_value[sensor_number])
+
         while not total_detected_queue.empty():
-            print(total_detected_queue.get())
+            tmp_info = total_detected_queue.get()
+            tmp_timestamp = tmp_info[2]
+            buffer_info.extend(tmp_info)
+            new_event = False
+            if abs(pre_timestamp - tmp_timestamp) > 2:
+                new_event = True
+            if new_event:
+                merged_detected_queue.put(buffer_info)
+                buffer_info = []
+                pre_timestamp = tmp_timestamp
+            
+        while not merged_detected_queue.empty():
+            print(merged_detected_queue.get())
             print('\n')
