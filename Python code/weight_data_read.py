@@ -3,7 +3,7 @@ import numpy as np
 import os
 
 def csv_file_read(gn, sn, pn):
-    file_path = '../csv/'
+    file_path = '../csv/test1/'
     file_name = file_path + 'gondola_' + str(gn) + '_shelf_' + str(sn) + '_plate_' + str(pn) + '.csv'
     if not os.path.exists(file_name):
         down_ts =[]
