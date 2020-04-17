@@ -1,4 +1,4 @@
-from weight_data_read import csv_file_read as cfr
+from cvs_data_read import csv_file_read as cfr
 import queue
 import numpy as np
 import time
@@ -137,7 +137,57 @@ class WeightSensor:
             self.value = np.delete(self.value, del_array, axis = 0)
             self.timestamp = np.delete(self.timestamp, del_array, axis = 0)
         self.weight_change_detection(total_detected_queue, detected_weight_event_queue)
+
+def weight_based_item_estimate(sensor_number, changed_weight, weight_sensor_item_info_queue, out_sensor_item_info):
+    #return or pick up
+    if changed_weight > 5:
+        #estimate the item number and category from the temporarry shopping list
+        item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation( out_sensor_item_info, np.abs(changed_weight), 1)
+    else:
+        if changed_weight < -5:
+            sensor_total_number = len(sensor_number)
+            item_condidate = []
+            if sensor_total_number == 1:
+                #only one sensor weight changed
+                item_condidate = weight_sensor_item_info_queue[sensor_number[0]-1]
+            else:
+                for tmp_s_num in range(len(sensor_number)):
+                    tmp_sensor_num = sensor_number[tmp_s_num-1]
+                    tmp_item_info = weight_sensor_item_info_queue[tmp_sensor_num-1]
+                    item_condidate.extend(tmp_item_info)
             
+            if len(item_condidate) > 0:  #the weight sensor contian useful info
+                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
+            else:
+                item_condidate = out_sensor_item_info
+                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
+    return item_fin_name, item_fin_number, item_fin_price
+
+def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_number):
+    item_weight = []
+    item_name =[]
+    item_price =[]
+    for kk in range(len(item_condidate)):
+        tmp_item = item_condidate[kk]
+        item_name.extend([tmp_item[0]])
+        item_weight.extend([tmp_item[1]])
+        item_price.extend([tmp_item[2]])
+    condidate_weight = np.array(item_weight)
+    if maximum_item_number > 1:
+        for kk in range(maximum_item_number):
+            if kk == 0:
+                continue
+            else:
+                condidate_weight = np.append(condidate_weight, (kk+1)* item_weight)
+    weight_difference = np.abs(condidate_weight - changed_weight)
+    item_weight_diff = min(weight_difference)
+    item_index = np.argmin(weight_difference)
+    real_index = item_index % len(item_condidate)
+    item_fin_name = item_name[real_index]
+    item_fin_number = int(np.round(changed_weight/item_weight[real_index]))
+    item_fin_price = item_price[real_index]
+    return item_fin_name, item_fin_number, item_fin_price
+
 if __name__ == "__main__":
 
     detected_weight_event_queue = [queue.Queue(0) for kk in range(Weight_sensor_number)]  # event sotor queue of each sensor
@@ -154,7 +204,7 @@ if __name__ == "__main__":
                 tmp_sn = sn+1
                 tmp_pn = pn + 1
 
-                timestamp, weight_value = cfr(tmp_gn, tmp_sn, tmp_pn)
+                timestamp, weight_value = cfr('test1', tmp_gn, tmp_sn, tmp_pn)
                 sensor_number = (tmp_gn - 1) * 6 * 12 + (tmp_sn-1) * 12 + tmp_pn
                 weight_value_list[sensor_number-1].extend(list(weight_value))
                 timestamp_list[sensor_number-1].extend(list(timestamp))
