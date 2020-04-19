@@ -11,8 +11,12 @@ from weight_main import weight_based_item_estimate
 
 lock = threading.Lock()
 
+Weight_sensor_number = 360
 customer_shopping_list =[]
 #each shopping list formate  item_fin_name, item_fin_number, item_fin_price,  item_per_weight
+#ground truth data read
+sensor_info, out_info = gtr('test1', Weight_sensor_number)
+
 
 def allocate_customer_id():
     #if some people getinto the store, use the function to allocate the customer id
@@ -32,6 +36,7 @@ def customer_shopping_list_update(customer_id, changed_weight, changed_item_info
     current_customer_shopping_list = customer_shopping_list[customer_id]
 
     if (changed_weight > 5) & (item_number == 0):
+        # changed weight >0 but customer shoping list is empty
         new_shopping_list = customer_shopping_list[customer_id]
 
     if (changed_weight > 5) & (item_number > 0):
@@ -83,7 +88,37 @@ def customer_shopping_list_update(customer_id, changed_weight, changed_item_info
         customer_shopping_list[customer_id] = new_shopping_list
     finally:
         lock.release()
-                    
+
+def return_weight_sensor_item_updata(sensor_number_list, changed_item_info):
+    item_name = changed_item_info[0]
+    item_number = changed_item_info[1]
+    item_price = changed_item_info[2]
+    item_per_weight = changed_item_info[3]
+
+    global sensor_info
+
+    new_item_info = [item_name, item_per_weight, item_price]
+
+    if len(sensor_number_list) > 0:
+        for tmp_sensor_num in range(len(sensor_number_list)):
+            tmp_sensor_number = sensor_number_list[tmp_sensor_num]
+            new_sensor_item_info = sensor_info[tmp_sensor_number]
+            exist_flag = False
+            if len(new_sensor_item_info) > 0:
+                for old_item_num in range(len(new_sensor_item_info)):
+                    old_item_info = new_sensor_item_info[old_item_num]
+                    old_item_name = old_item_info[0]
+                    if old_item_name == item_name:
+                        #return to where it taked
+                        exist_flag = True
+                        break
+            if exist_flag == False:
+                #retuen to another plate
+                new_sensor_item_info.extend(new_item_info)
+                sensor_info[tmp_sensor_number] = new_sensor_item_info
+            
+
+
 def print_receipt(customer_id):
     global customer_shopping_list
     print('###********  BestTeamEver store receipt  ********###')
@@ -117,15 +152,15 @@ def print_receipt(customer_id):
     print('---------------------------end------------------------')
 
 if __name__ == "__main__":
-    Weight_sensor_number = 360
+    
+    #global Weight_sensor_number
 
     detected_weight_event_queue = [queue.Queue(0) for kk in
                                    range(Weight_sensor_number)]  # event sotor queue of each sensor
     total_detected_queue = queue.Queue(0)  # number changed_weight timestamp #total queue of detected event
     merged_detected_queue = queue.Queue(0)
 
-    #ground truth data read
-    sensor_info, out_info = gtr('test1', Weight_sensor_number)
+    
 
     # people get into store
     current_customer_id = allocate_customer_id()
@@ -216,9 +251,12 @@ if __name__ == "__main__":
             item_fin_name, item_fin_number, item_fin_price,  item_per_weight  = weight_based_item_estimate(customer_shopping_list[current_customer_id], sensor_number_list, total_changed_weight, sensor_info, out_info)
             changed_item_info = [item_fin_name, item_fin_number, item_fin_price,  item_per_weight]
             customer_shopping_list_update(current_customer_id, total_changed_weight, changed_item_info)
+            if total_changed_weight > 5:
+                return_weight_sensor_item_updata(sensor_number_list, changed_item_info)
+
             if len(customer_shopping_list)> 0:
                 for custom_dd in range(len(customer_shopping_list)):
                     print_receipt(custom_dd)
 
-            weight_based_item_info =[event_timestamp, item_fin_name, item_fin_number, item_fin_price]
-            print(weight_based_item_info)
+            #weight_based_item_info =[event_timestamp, item_fin_name, item_fin_number, item_fin_price]
+            #print(weight_based_item_info)
