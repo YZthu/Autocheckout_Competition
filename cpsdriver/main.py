@@ -105,8 +105,8 @@ def generate_receipts(test_client):
             update_data = moreData[sensor_number]
             if update_data.shape[0] == 0:
                 continue # no data loaded from the batch
-            update_wv = update_data[:,0]
-            update_ts = update_data[:,1]
+            update_wv = update_data[:,1]
+            update_ts = update_data[:,0]
             weight_sensor_list[sensor_number].value_update(total_detected_queue, detected_weight_event_queue, update_wv, update_ts)
         #time.sleep(0.1)
         moreData,next_time = get_sensor_batch(test_client, next_time, 0.5, Weight_sensor_number)
