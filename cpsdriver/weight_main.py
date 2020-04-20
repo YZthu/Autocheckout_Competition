@@ -2,7 +2,6 @@ from cvs_data_read import csv_file_read as cfr
 import queue
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 
 Weight_sensor_number = 360
 
@@ -138,11 +137,27 @@ class WeightSensor:
             self.timestamp = np.delete(self.timestamp, del_array, axis = 0)
         self.weight_change_detection(total_detected_queue, detected_weight_event_queue)
 
-def weight_based_item_estimate(sensor_number, changed_weight, weight_sensor_item_info_queue, out_sensor_item_info):
+def weight_based_item_estimate(current_shopping_list, sensor_number, changed_weight, weight_sensor_item_info_queue, out_sensor_item_info):
     #return or pick up
     if changed_weight > 5:
         #estimate the item number and category from the temporarry shopping list
-        item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation( out_sensor_item_info, np.abs(changed_weight), 1)
+        if len(current_shopping_list) < 1:
+            #current customer shopping list is empty, return fail
+            print('Error, detected return action but shopping list is empty')
+            item_fin_name =[]
+            item_fin_number = 0
+            item_fin_price = 0
+            item_per_weight = 0
+        else:
+            item_condidate = []
+            for tmp_kk in range(len(current_shopping_list)):
+                tmp_condite = current_shopping_list[tmp_kk]
+                #shopping list formate  item_fin_name, item_fin_number, item_fin_price,  item_per_weight
+                #item_condidate format item_name, item_weight, item_price
+                tmp_item_info =[tmp_condite[0], tmp_condite[3], tmp_condite[2]]
+                item_condidate.extend(tmp_item_info)
+
+            item_fin_name, item_fin_number, item_fin_price, item_per_weight = most_similar_item_estimation( item_condidate, np.abs(changed_weight), 3)
     else:
         if changed_weight < -5:
             sensor_total_number = len(sensor_number)
@@ -157,11 +172,11 @@ def weight_based_item_estimate(sensor_number, changed_weight, weight_sensor_item
                     item_condidate.extend(tmp_item_info)
             
             if len(item_condidate) > 0:  #the weight sensor contian useful info
-                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
+                item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
             else:
                 item_condidate = out_sensor_item_info
-                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
-    return item_fin_name, item_fin_number, item_fin_price
+                item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
+    return item_fin_name, item_fin_number, item_fin_price,  item_per_weight 
 
 def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_number):
     item_weight = []
@@ -186,7 +201,8 @@ def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_nu
     item_fin_name = item_name[real_index]
     item_fin_number = int(np.round(changed_weight/item_weight[real_index]))
     item_fin_price = item_price[real_index]
-    return item_fin_name, item_fin_number, item_fin_price
+    item_per_weight = item_weight[real_index]
+    return item_fin_name, item_fin_number, item_fin_price, item_per_weight
 
 if __name__ == "__main__":
 
