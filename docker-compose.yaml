@@ -13,7 +13,7 @@ services:
       - AIFI_CPSWEEK_COMP__COMMAND=${AIFI_CPSWEEK_COMP__COMMAND:-cps-test-01}
       - AIFI_CPSWEEK_COMP__SAMPLE=${AIFI_CPSWEEK_COMP__SAMPLE:-nodepth}
     ports:
-      - "808:5000"
+      - "809:5000"
     links:
       - mongodb
     depends_on:
@@ -23,7 +23,7 @@ services:
     expose:
       - "27017"
     ports:
-      - "27018:27017"
+      - "27019:27017"
     volumes:
       - "./data/mongo:/data/db"
     environment:

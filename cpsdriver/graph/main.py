@@ -7,7 +7,6 @@ import torchlight
 from torchlight import import_class
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description='Processor collection')
 
     # region register processor yapf: disable
@@ -27,6 +26,7 @@ if __name__ == '__main__':
 
     # start
     Processor = processors[arg.processor]
-    p = Processor(sys.argv[2:])
+    p = Processor([])
+    #p = Processor(sys.argv[2:])
 
     p.start()

@@ -175,6 +175,12 @@ if __name__ == "__main__":
     enter_camera_index = 4
     exit_camera_index = 3
     initial_timestamp = 1580250245.19951 - 1/20 
+    video_path = '../cps-test-videos/'
+    video_file_names = get_immediate_childfile_names(video_path) 
+    for file_name in video_file_names:
+        print(video_path+file_name)
+        if file_name[-3:]=='mp4':
+            video_to_images(video_path + file_name)         
 
     gondola_to_camera_map = {1:3, 2:3, 3:5, 4:1, 5:4, 5:3}
     gondola_bbox_list = [[],[],[],[[[[706, 342],[707, 313],[823, 463],[817, 494]],
@@ -274,6 +280,7 @@ if __name__ == "__main__":
             camera_index = gondola_to_camera_map[gondola_num+1]     
             vision_info = camera_instance_list[camera_index].get_visual_info(pose_estimator, tmp_timestamp, tmp_weight_sensor_index)
             print(len(vision_info))
+            print(vision_info) 
             
             new_event = False
             if abs(pre_timestamp - tmp_timestamp) > 2:

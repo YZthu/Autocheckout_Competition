@@ -4,9 +4,9 @@ from os import path
 
 from pymongo import MongoClient
 import requests
-from sh import mongorestore
+#from sh import mongorestore
 
-from cpsdriver.codec import DocObjectCodec
+from codec import DocObjectCodec
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
