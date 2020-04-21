@@ -143,9 +143,9 @@ def weight_based_item_estimate(sensor_number, changed_weight, weight_sensor_item
         #estimate the item number and category from the temporarry shopping list
         item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation( out_sensor_item_info, np.abs(changed_weight), 1)
     else:
+        item_condidate = []
         if changed_weight < -5:
             sensor_total_number = len(sensor_number)
-            item_condidate = []
             if sensor_total_number == 1:
                 #only one sensor weight changed
                 item_condidate = weight_sensor_item_info_queue[sensor_number[0]-1]
@@ -155,11 +155,11 @@ def weight_based_item_estimate(sensor_number, changed_weight, weight_sensor_item
                     tmp_item_info = weight_sensor_item_info_queue[tmp_sensor_num-1]
                     item_condidate.extend(tmp_item_info)
             
-            if len(item_condidate) > 0:  #the weight sensor contian useful info
-                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
-            else:
-                item_condidate = out_sensor_item_info
-                item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
+        if len(item_condidate) > 0:  #the weight sensor contian useful info
+            item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
+        else:
+            item_condidate = out_sensor_item_info
+            item_fin_name, item_fin_number, item_fin_price = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
     return item_fin_name, item_fin_number, item_fin_price
 
 def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_number):
@@ -183,7 +183,11 @@ def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_nu
     item_index = np.argmin(weight_difference)
     real_index = item_index % len(item_condidate)
     item_fin_name = item_name[real_index]
-    item_fin_number = int(np.round(changed_weight/item_weight[real_index]))
     item_fin_price = item_price[real_index]
+    if item_weight[real_index] == 0:
+        print("ERRROR: item {} has 0 weight".format(item_fin_name))
+        item_fin_number = 0
+    else:
+        item_fin_number = int(np.round(changed_weight/item_weight[real_index]))
     return item_fin_name, item_fin_number, item_fin_price
 

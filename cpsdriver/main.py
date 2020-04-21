@@ -27,6 +27,7 @@ print (cpsdriver_args)
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
+
 def main(args=None):
     args = parse_configs(args)
     setup_logger(args.log_level)
@@ -36,7 +37,7 @@ def main(args=None):
     #test_client.load(f"{args.command}-{args.sample}")
     logger.info(f"Available Test Cases are {test_client.available_test_cases}")
     test_client.set_context(args.command, load=False)
-    generate_receipts(test_client)
+    generate_receipts(test_client, args.command)
 
 def load_product_locations(test_client,Weight_sensor_number):
     productList = test_client.list_products()
@@ -204,7 +205,7 @@ def print_receipt(customer_id, current_shopping_list):
     print('Total  -------------------------------------  %f'%(total_money))
     print('---------------------------end------------------------')
 
-def generate_receipts(test_client):
+def generate_receipts(test_client, case_name):
     Weight_sensor_number = 360
 
     detected_weight_event_queue = [queue.Queue(0) for kk in
@@ -226,7 +227,7 @@ def generate_receipts(test_client):
     enter_camera_index = 4
     exit_camera_index = 3
     initial_timestamp = 1580250245.19951 - 1/20 
-    video_path = '../cps-test-videos/'
+    video_path = '../videos/'+case_name+'/'
     video_file_names = get_immediate_childfile_names(video_path) 
     for file_name in video_file_names:
         print(file_name)
@@ -248,7 +249,7 @@ def generate_receipts(test_client):
                     [[ 896,  221],[ 924,  115],[1248,  263],[1154,  392]]]],[],[],[],[]]
     camera_instance_list = []
     for i in range(8): #8 cameras
-        image_folder = '../cps-test-videos' + '/' + str(i) + '/'
+        image_folder = video_path + str(i) + '/'
         camera_instance_list.append(Vision_module(i, image_folder, gondola_bbox_list[i], initial_timestamp))
 
     # people get into store

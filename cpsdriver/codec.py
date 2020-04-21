@@ -274,6 +274,7 @@ class DocObjectCodec:
     RECORDED_TYPES = {
         "depth": AggregatedDepth.from_dict,
         "targets": Targets.from_dict,
+        "full_targets": Targets.from_dict,
         "planogram": Facing.from_dict,
         "products": Product.from_dict,
         "plate_data": PlateData.from_dict,
