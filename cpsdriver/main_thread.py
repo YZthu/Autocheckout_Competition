@@ -132,6 +132,7 @@ def print_receipt(customer_id):
         print('name                     * price * number * total')
         for kk in range(len(current_shopping_list)):
             tmp_item = current_shopping_list[kk]
+            print(tmp_item)
             print('------------------------------------------------------')
             item_name = tmp_item[0]
             if len(item_name) > 26:

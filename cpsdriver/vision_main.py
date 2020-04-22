@@ -239,7 +239,7 @@ class Vision_module:
                                 else:
                                     print("No memory img {}.".format(memory_img_id))
                                 
-                                cv2.imwrite('./cps-test-videos/camera{}-frame{}-detect-item.jpg'.format(self.camera_id, self.img_id), cropImg)
+                                cv2.imwrite('./videos/camera{}-frame{}-detect-item.jpg'.format(self.camera_id, self.img_id), cropImg)
                                 pick_result = {'track_id':track_id, 'shelf_id':[i+1,j+1], 'img_id':self.img_id, 'hand_pos':[x3_r,y3_r], 'memory_item_img':cropImg} 
 
                                 print("ID:"+str(track_id)+" picks on shelf "+ str(i+1)+ "-" + str(j+1) +" at time "+str(self.img_id))
@@ -258,7 +258,7 @@ class Vision_module:
                                 else:
                                     print("No memory img {}.".format(memory_img_id))
                                 
-                                cv2.imwrite('./cps-test-videos/camera{}-frame{}-detect-item.jpg'.format(self.camera_id, self.img_id), cropImg)
+                                cv2.imwrite('./videos/camera{}-frame{}-detect-item.jpg'.format(self.camera_id, self.img_id), cropImg)
                                 pick_result = {'track_id':track_id, 'shelf_id':[i+1,j+1], 'img_id':self.img_id, 'hand_pos':[x3_l,y3_l], 'memory_item_img':cropImg} 
 
                                 print("ID:"+str(track_id)+" picks on shelf "+ str(i+1)+ "-" + str(j+1) +" at time "+str(self.img_id))
@@ -415,7 +415,7 @@ class Vision_module:
                 else:
                     print("No memory img {}.".format(memory_img_id))
                 
-                cv2.imwrite('../cps-test-videos/camera{}-frame{}-person{}r.jpg'.format(self.camera_id, curr_img_id, person_id), cropImg)
+                cv2.imwrite('../videos/camera{}-frame{}-person{}r.jpg'.format(self.camera_id, curr_img_id, person_id), cropImg)
                 pick_result.append({'person_id':person_id, 'shelf_id':shelf_id, 'img_id':curr_img_id, 'hand':'r', 'hand_pos':[x3_r,y3_r], 'memory_item_img':cropImg})
 
                 print("ID:"+str(person_id)+" picks on shelf "+ str(shelf_id) +" at time "+str(curr_img_id))
@@ -432,7 +432,7 @@ class Vision_module:
                 else:
                     print("No memory img {}.".format(memory_img_id))
                 
-                cv2.imwrite('../cps-test-videos/camera{}-frame{}-person{}l.jpg'.format(self.camera_id, curr_img_id, person_id), cropImg)
+                cv2.imwrite('../videos/camera{}-frame{}-person{}l.jpg'.format(self.camera_id, curr_img_id, person_id), cropImg)
                 pick_result.append({'person_id':person_id, 'shelf_id':shelf_id, 'img_id':curr_img_id, 'hand':'l', 'hand_pos':[x3_l,y3_l], 'memory_item_img':cropImg})
 
                 print("ID:"+str(person_id)+" picks on shelf "+ str(i+1)+ "-" + str(j+1) +" at time "+str(self.img_id))
@@ -445,7 +445,7 @@ def get_shelf_position(shelf_id):
     return gondola_id, shelf_id
 
 def get_img_id_from_timestamp(timestamp, init_timestamp):
-    return int((timestamp - init_timestamp)*20) - 15 #or it may not align well...
+    return int((timestamp - init_timestamp)*10) #or it may not align well...
 
 
 def get_track_id_person_reID(img_path, bbox_det, img_id, camera_id):
@@ -454,7 +454,7 @@ def get_track_id_person_reID(img_path, bbox_det, img_id, camera_id):
 
     img = cv2.imread(img_path )
     cropImg = img[int(y1):int(y2),int(x1):int(x2)]
-    cv2.imwrite('../cps-test-videos/camera{}-frame{}-detect-person.jpg'.format(camera_id, img_id), cropImg)
+    cv2.imwrite('../videos/camera{}-frame{}-detect-person.jpg'.format(camera_id, img_id), cropImg)
     
     img_transforms = transforms.Compose([
         transforms.ToPILImage(),
@@ -488,7 +488,7 @@ def person_reID_add(img_path, bbox_det, img_id, camera_id):
 
     img = cv2.imread(img_path )
     cropImg = img[int(y1):int(y2),int(x1):int(x2)]
-    cv2.imwrite('../cps-test-videos/camera{}-frame{}-add-person.jpg'.format(camera_id, img_id), cropImg)
+    cv2.imwrite('../videos/camera{}-frame{}-add-person.jpg'.format(camera_id, img_id), cropImg)
 
     
     img_transforms = transforms.Compose([
@@ -511,7 +511,7 @@ def person_reID_remove(img_path, bbox_det, img_id, camera_id):
 
     img = cv2.imread(img_path )
     cropImg = img[int(y1):int(y2),int(x1):int(x2)]
-    cv2.imwrite('./cps-test-videos/camera{}-frame{}-remove-person.jpg'.format(camera_id, img_id), cropImg)
+    cv2.imwrite('./videos/camera{}-frame{}-remove-person.jpg'.format(camera_id, img_id), cropImg)
 
     
     img_transforms = transforms.Compose([
@@ -981,7 +981,7 @@ def isPoiWithinPoly(poi,poly): # check point locate in which box
 if __name__ == "__main__":
     global args
     parser = argparse.ArgumentParser()
-    parser.add_argument('--video_dir_path', '-v', type=str, dest='video_dir_path', default='cps-test-videos')
+    parser.add_argument('--video_dir_path', '-v', type=str, dest='video_dir_path', default='videos')
     parser.add_argument('--model', '-m', type=str, dest='test_model', default="weights/mobile-deconv/snapshot_296.ckpt")
     args = parser.parse_args()
     args.bbox_thresh = 0.4

@@ -21,7 +21,7 @@ class WeightSensor:
         # weight sensor sampling rate is 60 Hz, keep all the weight value in the last 20 seconds
 
         
-    def weight_change_detection(self, total_detected_queue, detected_weight_event_queue):
+   def weight_change_detection(self, total_detected_queue, detected_weight_event_queue):
 
         pre_val = self.value[0]
         CONTINUE_TH = 5
@@ -159,9 +159,9 @@ def weight_based_item_estimate(current_shopping_list, sensor_number, changed_wei
 
             item_fin_name, item_fin_number, item_fin_price, item_per_weight = most_similar_item_estimation( item_condidate, np.abs(changed_weight), 3)
     else:
+        item_condidate = []
         if changed_weight < -5:
             sensor_total_number = len(sensor_number)
-            item_condidate = []
             if sensor_total_number == 1:
                 #only one sensor weight changed
                 item_condidate = weight_sensor_item_info_queue[sensor_number[0]-1]
@@ -171,11 +171,11 @@ def weight_based_item_estimate(current_shopping_list, sensor_number, changed_wei
                     tmp_item_info = weight_sensor_item_info_queue[tmp_sensor_num-1]
                     item_condidate.extend(tmp_item_info)
             
-            if len(item_condidate) > 0:  #the weight sensor contian useful info
-                item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
-            else:
-                item_condidate = out_sensor_item_info
-                item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
+        if len(item_condidate) > 0:  #the weight sensor contian useful info
+            item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 3)
+        else:
+            item_condidate = out_sensor_item_info
+            item_fin_name, item_fin_number, item_fin_price,  item_per_weight = most_similar_item_estimation(item_condidate, np.abs(changed_weight), 1)
     return item_fin_name, item_fin_number, item_fin_price,  item_per_weight 
 
 def most_similar_item_estimation(item_condidate, changed_weight, maximum_item_number):

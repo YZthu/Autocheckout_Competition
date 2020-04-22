@@ -113,7 +113,7 @@ def customer_shopping_list_update(current_customer_shopping_list, changed_weight
             if current_item_name == item_name:
                 new_current_item_number = current_item_number - item_number
                 if new_current_item_number > 0:
-                    new_current_shopping_list_item_info =[current_item_number, new_current_item_number, current_item_price, current_item_per_weight]
+                    new_current_shopping_list_item_info =[current_item_name, new_current_item_number, current_item_price, current_item_per_weight]
                     new_shopping_list.append(new_current_shopping_list_item_info)
             else:
                 new_shopping_list.append(current_shopping_list_item_info)
@@ -136,7 +136,7 @@ def customer_shopping_list_update(current_customer_shopping_list, changed_weight
 
                 if current_item_name == item_name:
                     new_current_item_number = current_item_number + item_number
-                    new_current_shopping_list_item_info =[current_item_number, new_current_item_number, current_item_price, current_item_per_weight]
+                    new_current_shopping_list_item_info =[current_item_name, new_current_item_number, current_item_price, current_item_per_weight]
                     new_shopping_list.append(new_current_shopping_list_item_info)
                     item_write_flag = True
                 else:
@@ -170,7 +170,7 @@ def return_weight_sensor_item_updata(sensor_number_list, changed_item_info, sens
                         break
             if exist_flag == False:
                 #retuen to another plate
-                new_sensor_item_info.extend(new_item_info)
+                new_sensor_item_info.append(new_item_info)
                 sensor_info[tmp_sensor_number] = new_sensor_item_info
     return sensor_info
 
@@ -184,6 +184,7 @@ def print_receipt(customer_id, current_shopping_list):
         print('name                     * price * number * total')
         for kk in range(len(current_shopping_list)):
             tmp_item = current_shopping_list[kk]
+            print(tmp_item)
             print('------------------------------------------------------')
             item_name = tmp_item[0]
             if len(item_name) > 26:
@@ -226,31 +227,45 @@ def generate_receipts(test_client, case_name):
     pose_estimator.load_weights("weights/mobile-deconv/snapshot_296.ckpt")
     enter_camera_index = 4
     exit_camera_index = 3
-    initial_timestamp = 1580250245.19951 - 1/20 
+    
     video_path = '../videos/'+case_name+'/'
     video_file_names = get_immediate_childfile_names(video_path) 
-    for file_name in video_file_names:
-        print(file_name)
-        if file_name[-3:]=='mp4':
-            video_to_images(video_path + file_name)         
+    #for file_name in video_file_names:
+    #    print(file_name)
+    #    if file_name[-3:]=='mp4':
+    #        video_to_images(video_path + file_name)         
 
-    gondola_to_camera_map = {1:3, 2:3, 3:5, 4:1, 5:4, 5:3}
-    gondola_bbox_list = [[],[],[],[[[[706, 342],[707, 313],[823, 463],[817, 494]],
-                    [[709, 308],[713, 275],[833, 416],[825, 454]],
-                    [[713, 266],[716, 226],[849, 365],[838, 408]],
-                    [[719, 221],[722, 172],[868, 297],[853, 357]],
-                    [[723, 170],[728, 107],[888, 214],[875, 288]],
-                    [[729, 104],[738,  20],[934, 110],[887, 213]]],
-                    [[[ 818,  496],[ 827,  459],[ 987,  661],[ 964,  698]],
-                    [[ 831,  450],[ 839,  415],[1015,  614],[ 994,  650]],
-                    [[ 846,  407],[ 851,  368],[1044,  560],[1023,  606]],
-                    [[ 858,  356],[ 869,  299],[1088,  484],[1052,  551]],
-                    [[ 877,  290],[ 889,  231],[1141,  405],[1098,  474]],
-                    [[ 896,  221],[ 924,  115],[1248,  263],[1154,  392]]]],[],[],[],[]]
+    gondola_to_camera_map = {1:3, 2:3, 3:5, 4:5} #update here with new video names
+    gondola_bbox_list = [[[[1310,  617],[1566, 1004],[1499, 1123],[1275,  741]],
+                        [[1333,  533],[1601,  901],[1536, 1041],[1299,  672]],
+                        [[1355,  449],[1641,  808],[1572,  950],[1316,  586]],
+                        [[1370,  341],[1693,  668],[1624,  860],[1329,  494]],
+                        [[1396,  212],[1779,  517],[1670,  720],[1351,  373]],
+                        [[1424,   84],[1911,  365],[1814,  591],[1377,  240]]],
+
+                        [[[1534,  968],[1820, 1396],[1706, 1493],[1463, 1112]],
+                        [[1573,  877],[1880, 1306],[1771, 1424],[1512, 1015]],
+                        [[1609,  784],[1937, 1219],[1840, 1347],[1545,  926]],
+                        [[1654,  657],[2061, 1099],[1926, 1258],[1590,  832]],
+                        [[1708,  494],[2214,  950],[2042, 1163],[1620,  696]],
+                        [[1782,  367],[2365,  793],[2130,  989],[1674,  545]]],
+
+                        [[[1118, 1316],[1469,  870],[1510,  996],[1191, 1445]],
+                        [[1058, 1198],[1450,  752],[1491,  920],[1146, 1353]],
+                        [[1008, 1082],[1439,  640],[1478,  799],[1097, 1237]],
+                        [[ 957,  974],[1415,  550],[1448,  696],[1041, 1123]],
+                        [[ 800,  795],[1349,  401],[1422,  593],[ 982, 1010]]],
+
+                        [[[1452,  892],[1639,  657],[1657,  774],[1491, 1010]],
+                        [[1422,  774],[1631,  560],[1646,  700],[1467,  918]],
+                        [[1387,  681],[1611,  461],[1641,  597],[1430,  836]],
+                        [[1375,  556],[1603,  365],[1626,  500],[1424,  705]],
+                        [[1232,  455],[1594,  272],[1609,  414],[1368,  631]],
+                        [[1176,  272],[1568,  158],[1594,  349],[1262,  511]]]]
     camera_instance_list = []
-    for i in range(8): #8 cameras
-        image_folder = video_path + str(i) + '/'
-        camera_instance_list.append(Vision_module(i, image_folder, gondola_bbox_list[i], initial_timestamp))
+    #for i in range(len(video_file_names)): #8 cameras
+    #    image_folder = video_path + str(i) + '/'
+    #    camera_instance_list.append(Vision_module(i, image_folder, gondola_bbox_list, initial_timestamp))
 
     # people get into store
     current_customer_id = 1
@@ -262,7 +277,16 @@ def generate_receipts(test_client, case_name):
     buffer_info = []
     pre_system_time = time.time()
     pre_timestamp = 0
+    pre_sensor_num = 0
     moreData, next_time = get_sensor_batch(test_client, -1, 1.0, Weight_sensor_number)
+    
+    tmp_data = moreData[100]
+    tmp_data_ts = tmp_data[:,0]
+    initial_timestamp = tmp_data_ts[0]
+    for i in range(len(video_file_names)): #8 cameras
+        image_folder = video_path + str(i) + '/'
+        camera_instance_list.append(Vision_module(i, image_folder, gondola_bbox_list, initial_timestamp))
+
     personEntered = False # TODO: replace with results from target
     while moreData is not None:
         for sensor_number in range(Weight_sensor_number):
@@ -299,10 +323,11 @@ def generate_receipts(test_client, case_name):
             print(len(vision_info))
             print(vision_info) 
             
-            new_event = False
-            if abs(pre_timestamp - tmp_timestamp) > 2:
-                new_event = True
-            if new_event:
+            new_event = True
+            #if abs(pre_timestamp - tmp_timestamp) > 2:
+            if (abs(pre_timestamp - tmp_timestamp) < 2) & (abs(pre_sensor_num - tmp_weight_sensor_index) < 4):
+                new_event = False
+            if new_event==False:
                 if len(buffer_info) > 0:
                     merged_detected_queue.put(buffer_info)
                     buffer_info = []
@@ -339,7 +364,12 @@ def generate_receipts(test_client, case_name):
             current_shopping_list = customer_shopping_list[current_customer_id]
             item_fin_name, item_fin_number, item_fin_price,  item_per_weight  = weight_based_item_estimate(current_shopping_list, sensor_number_list, total_changed_weight, sensor_info, out_info)
             changed_item_info = [item_fin_name, item_fin_number, item_fin_price,  item_per_weight]
+            print('detected changed item info')
+            print(total_changed_weight)
+            print(changed_item_info)
+            print(current_shopping_list)
             new_list = customer_shopping_list_update(current_shopping_list, total_changed_weight, changed_item_info)
+            print(new_list)
             customer_shopping_list[current_customer_id] = new_list
             if total_changed_weight > 5:
                 return_weight_sensor_item_updata(sensor_number_list, changed_item_info)
