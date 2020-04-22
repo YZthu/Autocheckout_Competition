@@ -11,6 +11,7 @@ from collections import defaultdict
 
 import sys
 import logging
+import pdb
 
 #from cpsdriver.clients import (
 from clients import (
@@ -56,16 +57,20 @@ def load_product_locations(test_client,Weight_sensor_number):
     return weight_sensor_info, out_sensor_product_info
 
 def get_sensor_batch(test_client, start_time, batch_length, Weight_sensor_number):
+    DOWNFACTOR=10
     if start_time <= 0:
         # the first time, we don't know when the timestamps start, so let's find out
         first_data = test_client.find_first_after_time("plate_data",0.0)[0]
         start_time = first_data.timestamp
 
     batch_data = test_client.find_all_between_time("plate_data", start_time, start_time+batch_length)
-    if len(batch_data) == 0:
+    batch_size = len(batch_data)
+    if batch_size == 0:
         return None, -1
     weight_update_data = [np.empty((0,2)) for jj in range(Weight_sensor_number)]
     currentTime = start_time
+    # only take up to a multiple of 10 samples so we can downsample to 6Hz
+
     for rawData in batch_data:
         currentTime = rawData.timestamp
         startShelf = rawData.plate_id.shelf_index
@@ -86,7 +91,16 @@ def get_sensor_batch(test_client, start_time, batch_length, Weight_sensor_number
                     prevData = weight_update_data[sensor_number]
                 
                     weight_update_data[sensor_number] = np.vstack((prevData, updateData))
+    # down sampled
+    for nn in range(Weight_sensor_number):
+        # we might lose a few samples but doing it right would involve generators
+        d = weight_update_data[nn]
+        newLength = DOWNFACTOR*(d.shape[0]//DOWNFACTOR)
 
+        d = d[0:newLength,:]
+        meanTs = np.mean(d[:,0].reshape(-1,DOWNFACTOR), axis=1)
+        meanW = np.mean(d[:,0].reshape(-1,DOWNFACTOR),axis=1)
+        weight_update_data[nn] = np.hstack((meanTs.reshape(-1,1), meanW.reshape(-1,1)))
     return weight_update_data, currentTime            
     
 def customer_shopping_list_update(current_customer_shopping_list, changed_weight, changed_item_info):
@@ -278,7 +292,7 @@ def generate_receipts(test_client, case_name):
     pre_system_time = time.time()
     pre_timestamp = 0
     pre_sensor_num = 0
-    moreData, next_time = get_sensor_batch(test_client, -1, 1.0, Weight_sensor_number)
+    moreData, next_time = get_sensor_batch(test_client, -1, 2.0, Weight_sensor_number)
     
     tmp_data = moreData[100]
     tmp_data_ts = tmp_data[:,0]
@@ -296,7 +310,7 @@ def generate_receipts(test_client, case_name):
             update_wv = update_data[:,1]
             update_ts = update_data[:,0]
             weight_sensor_list[sensor_number].value_update(total_detected_queue, detected_weight_event_queue, update_wv, update_ts)
-        moreData,next_time = get_sensor_batch(test_client, next_time, 0.5, Weight_sensor_number)
+        moreData,next_time = get_sensor_batch(test_client, next_time, 2, Weight_sensor_number)
         ### VISION STUFF ###
         camera_signal = np.zeros(8)
         if not personEntered:
@@ -335,7 +349,8 @@ def generate_receipts(test_client, case_name):
                 pre_system_time = time.time()
             buffer_info.append(tmp_info)
             pre_timestamp = tmp_timestamp
-            
+            pre_sensor_num = tmp_weight_sensor_index
+
         now_time = time.time()
         
         if now_time - pre_system_time > 1:

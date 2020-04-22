@@ -21,8 +21,7 @@ class WeightSensor:
         # weight sensor sampling rate is 60 Hz, keep all the weight value in the last 20 seconds
 
         
-   def weight_change_detection(self, total_detected_queue, detected_weight_event_queue):
-
+    def weight_change_detection(self, total_detected_queue, detected_weight_event_queue):
         pre_val = self.value[0]
         CONTINUE_TH = 5
         continue_count = 0
