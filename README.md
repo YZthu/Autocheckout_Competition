@@ -42,7 +42,7 @@ For the return, the system searches the customer's current list and subtract the
 
 
 ## Getting Started
-Please download the visual model on Google Drive, and put it into the 'cpsdrive' folder and then execute the following command.
+Please download the visual model on [Google Drive](https://pages.github.com/), and put it into the 'cpsdrive' folder and then execute the following command.
 ```Bash
 #The development environment is python 3.6.5, it's not specific. All the python3 environment should work, but we didn't test it.
 python main.py
