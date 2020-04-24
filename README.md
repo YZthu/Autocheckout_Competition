@@ -2,8 +2,7 @@
 
 ## System Architecture
 
-![image](Images/system.png)
 
-<div align=center><img width="150" height="150" src="Images/system.png"/></div>
+<div align=center><img width="500" height="500" src="Images/system.png" padding: 2px;">System Architecture /></div>
 
 ### test
