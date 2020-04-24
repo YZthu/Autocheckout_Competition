@@ -1,5 +1,7 @@
-# Autocheckout_Competition
+#CPSWeek Autocheckout Competition Team5
 
-##Test
+##System Architecture
+
+![image](Images/system.png)
 
 ###test
