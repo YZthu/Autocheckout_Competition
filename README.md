@@ -42,5 +42,10 @@ For the return, the system searches the customer's current list and subtract the
 
 
 ## Getting Started
+Load model weights: Put weights/ and person_reID/ folders on net disk into cpsdriver/ folder. Then in cpsdriver/ folder, run:
+
+```Bash
+python main.py
+```
 
 
