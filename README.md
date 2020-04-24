@@ -42,9 +42,9 @@ For the return, the system searches the customer's current list and subtract the
 
 
 ## Getting Started
-Load model weights: Put weights/ and person_reID/ folders on net disk into cpsdriver/ folder. Then in cpsdriver/ folder, run:
-
+Please download the visual model on Google Drive, and put it into the cpsdrive floder and then execute the following command.
 ```Bash
+#The development environment is python 3.6.5, it's not specific. All the python3 environment should work, but we didn't test it.
 python main.py
 ```
 
