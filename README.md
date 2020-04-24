@@ -39,4 +39,8 @@ We further estimate the number of item by dividing the measured weight change by
 Based on the predicted result, the detected pickup and return type, as well as the customer ID, our system further update the Customer shopping list. 
 For the pick up, the system add the corresponding number of recognized item to the customer's list.
 For the return, the system searches the customer's current list and subtract the items.
-### test
+
+
+## Getting Started
+
+
